@@ -1,0 +1,41 @@
+Scenario 1: Successful Message Processing
+
+Given a Kafka message producer is publishing messages to a topic
+When the Kafka message consumer successfully processes the message
+Then the restart count should remain at 0
+
+Scenario 2: Failed Message Processing and Retry
+
+Given a Kafka message producer is publishing messages to a topic
+And the Kafka message consumer fails to process the message on the first attempt
+When the consumer retries processing the message successfully
+Then the restart count should be incremented by 1
+
+Scenario 3: Continuous Failed Message Processing
+
+Given a Kafka message producer is publishing messages to a topic
+And the Kafka message consumer continuously fails to process the message
+When the maximum retry limit is reached
+Then the restart count should reflect the total number of restarts
+
+Scenario 4: Message Processing with External Dependency Failure
+
+Given a Kafka message producer is publishing messages to a topic
+And the Kafka message consumer depends on an external service
+When the external service is temporarily unavailable during message processing
+And the consumer successfully processes the message after the service is restored
+Then the restart count should be incremented by 1
+
+Scenario 5: Handling Poison Messages
+
+Given a Kafka message producer is publishing messages to a topic
+And the Kafka message consumer encounters a poison message (unrecoverable error)
+When the consumer identifies and handles the poison message appropriately
+Then the restart count should be incremented by 1
+
+Scenario 6: Consumer Crash and Recovery
+
+Given a Kafka message producer is publishing messages to a topic
+And the Kafka message consumer crashes unexpectedly
+When the consumer is restarted and successfully resumes processing messages
+Then the restart count should reflect the number of restarts after recovery

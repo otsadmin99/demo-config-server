@@ -1,0 +1,58 @@
+/**
+Kafka message consumer fails to process the message on the first attempt
+**/
+
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.serialization.StringDeserializer;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Properties;
+
+public class KafkaMessageConsumer {
+    public static void main(String[] args) {
+        // Kafka consumer configuration
+        Properties properties = new Properties();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "your_bootstrap_servers");
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "your_group_id");
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+
+        // Create Kafka consumer
+        Consumer<String, String> consumer = new KafkaConsumer<>(properties);
+
+        // Subscribe to topics
+        consumer.subscribe(Collections.singletonList("your_topic"));
+
+        try {
+            while (true) {
+                // Poll for messages
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+                // Process each record
+                records.forEach(record -> {
+                    try {
+                        // Your message processing logic here
+                        System.out.printf("Consumed record with key %s and value %s%n", record.key(), record.value());
+                        // Simulate a processing failure on the first attempt
+                        if (someCondition) {
+                            throw new RuntimeException("Simulated processing failure");
+                        }
+                    } catch (Exception e) {
+                        // Handle the exception, log it, and optionally commit the offset
+                        e.printStackTrace();
+                    }
+                });
+
+                // Commit offsets (this is important to avoid message reprocessing)
+                consumer.commitSync();
+            }
+        } finally {
+            // Close the consumer when done
+            consumer.close();
+        }
+    }
+}

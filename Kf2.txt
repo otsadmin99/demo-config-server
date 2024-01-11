@@ -1,0 +1,159 @@
+import java.util.Random;
+//consumer retries processing the message successfully sample java code
+public class MessageConsumer {
+
+    public static void main(String[] args) {
+        MessageQueue messageQueue = new MessageQueue();
+
+        // Simulating multiple messages in the queue
+        for (int i = 0; i < 5; i++) {
+            messageQueue.addMessage("Message " + i);
+        }
+
+        // Consumer processing messages
+        while (messageQueue.hasMessages()) {
+            String message = messageQueue.getNextMessage();
+            boolean success = processMessage(message);
+
+            if (success) {
+                System.out.println("Message processed successfully: " + message);
+            } else {
+                System.out.println("Message processing failed. Retrying: " + message);
+                messageQueue.addMessage(message); // Retry by adding the message back to the queue
+            }
+        }
+    }
+
+    private static boolean processMessage(String message) {
+        // Simulating message processing with a random success/failure
+        Random random = new Random();
+        return random.nextBoolean(); // 50% chance of success, 50% chance of failure
+    }
+}
+
+class MessageQueue {
+    private final Queue<String> queue = new LinkedList<>();
+
+    public void addMessage(String message) {
+        queue.add(message);
+    }
+
+    public String getNextMessage() {
+        return queue.poll();
+    }
+
+    public boolean hasMessages() {
+        return !queue.isEmpty();
+    }
+}
+
+
+
+
+
+====================
+
+import javax.mail.*;
+import javax.mail.internet.*;
+import java.util.*;
+
+public class EmailSearch {
+
+    public static void main(String[] args) {
+        String host = "your_mail_server";
+        String username = "your_username";
+        String password = "your_password";
+        String subjectToSearch = "your_subject";
+
+        Properties properties = System.getProperties();
+        properties.setProperty("mail.store.protocol", "imaps");
+
+        try {
+            Session session = Session.getDefaultInstance(properties, null);
+            Store store = session.getStore("imaps");
+            store.connect(host, username, password);
+
+            Folder inbox = store.getFolder("inbox");
+            inbox.open(Folder.READ_ONLY);
+
+            Message[] messages = inbox.getMessages();
+
+            for (Message message : messages) {
+                if (message.getSubject().contains(subjectToSearch)) {
+                    System.out.println("Subject: " + message.getSubject());
+                    System.out.println("From: " + message.getFrom()[0]);
+                    System.out.println("Sent Date: " + message.getSentDate());
+
+                    // You can add code here to take a snapshot of the email
+                }
+            }
+
+            inbox.close();
+            store.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+====================
+import java.io.FileOutputStream;
+import java.util.Properties;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Store;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+
+public class EmailToWordConverter {
+
+    public static void main(String[] args) {
+        String emailHost = "your-email-host.com";
+        String username = "your-email@example.com";
+        String password = "your-email-password";
+        String folderName = "INBOX";
+        String wordFilePath = "output.docx";
+
+        try {
+            // Connect to the email server
+            Properties props = System.getProperties();
+            props.setProperty("mail.store.protocol", "imaps");
+            Session session = Session.getDefaultInstance(props, null);
+            Store store = session.getStore("imaps");
+            store.connect(emailHost, username, password);
+
+            // Open the inbox folder
+            Folder folder = store.getFolder(folderName);
+            folder.open(Folder.READ_ONLY);
+
+            // Create a Word document
+            XWPFDocument document = new XWPFDocument();
+
+            // Process each email in the inbox
+            Message[] messages = folder.getMessages();
+            for (Message message : messages) {
+                // Create a new paragraph for each email
+                XWPFParagraph paragraph = document.createParagraph();
+                XWPFRun run = paragraph.createRun();
+
+                // Set email content as text in the Word document
+                run.setText(message.getContent().toString());
+            }
+
+            // Save the Word document
+            FileOutputStream out = new FileOutputStream(wordFilePath);
+            document.write(out);
+            out.close();
+
+            // Close the email folder and store
+            folder.close(false);
+            store.close();
+
+            System.out.println("Emails saved to Word document successfully.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

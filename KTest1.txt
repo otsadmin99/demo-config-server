@@ -1,0 +1,29 @@
+Scenario 1: Producer sends a message, but Consumer times out waiting for it
+
+
+Feature: Kafka Message Timeout
+
+  Scenario: Producer sends a message, but Consumer times out waiting for it
+    Given the Kafka topic "my_topic" is configured
+    And a Producer sends a message to "my_topic"
+    When the Consumer subscribes to "my_topic" and starts waiting for a message
+    Then the Consumer should receive the message before the timeout duration
+Scenario 2: Consumer times out waiting for a message that is not produced
+
+
+Feature: Kafka Message Timeout
+
+  Scenario: Consumer times out waiting for a message that is not produced
+    Given the Kafka topic "my_topic" is configured
+    And a Consumer subscribes to "my_topic" and starts waiting for a message
+    Then the Consumer should not receive any message before the timeout duration
+Scenario 3: Consumer times out waiting for a message after multiple retries
+
+
+Feature: Kafka Message Timeout
+
+  Scenario: Consumer times out waiting for a message after multiple retries
+    Given the Kafka topic "my_topic" is configured
+    And a Producer sends a message to "my_topic"
+    And the Consumer subscribes to "my_topic" and starts waiting with multiple retries
+    Then the Consumer should receive the message before the cumulative timeout duration

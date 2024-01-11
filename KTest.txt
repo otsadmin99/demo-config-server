@@ -1,0 +1,50 @@
+Scenario 1: Successful Message Processing
+Given a healthy Kafka system
+When a message is produced to the topic
+And the consumer successfully processes the message
+Then the system should exhibit the expected behavior
+And no retries should be attempted.
+
+Scenario 2: Message Processing Failure with Immediate Retry
+Given a healthy Kafka system
+When a message is produced to the topic
+And the consumer encounters a transient failure during processing
+Then the system should retry processing the message immediately
+And the expected behavior should be exhibited after a successful retry.
+
+Scenario 3: Message Processing Failure with Delayed Retry
+Given a healthy Kafka system
+When a message is produced to the topic
+And the consumer encounters a non-transient failure during processing
+Then the system should schedule a delayed retry for the message
+And the expected behavior should be exhibited after a successful delayed retry.
+
+Scenario 4: Maximum Retry Attempts Exceeded
+Given a healthy Kafka system
+When a message is produced to the topic
+And the consumer encounters a failure during processing
+And the maximum retry attempts are reached
+Then the system should mark the message as failed
+And the expected behavior for failed messages should be exhibited.
+
+Scenario 5: Exponential Backoff for Retries
+Given a healthy Kafka system
+When a message is produced to the topic
+And the consumer encounters a transient failure during processing
+Then the system should use exponential backoff for retry attempts
+And the expected behavior should be exhibited after a successful retry.
+
+Scenario 6: Dead Letter Queue Handling
+Given a healthy Kafka system
+When a message is produced to the topic
+And the consumer encounters a failure during processing
+And the maximum retry attempts are exceeded
+Then the system should move the message to a dead letter queue
+And the expected behavior for messages in the dead letter queue should be exhibited.
+
+Scenario 7: Monitoring and Logging
+Given a healthy Kafka system
+When messages are produced to the topic
+And the consumer encounters failures during processing
+Then the system should log relevant information about processing failures
+And monitoring tools should reflect the status and retry attempts
